@@ -33,6 +33,20 @@ struct lista_l{
     struct lista_l *next;
 }typedef lista_l;
 
+/*
+struct arbol{
+    double data;
+    arbol *padre;
+    arbol * rd;
+    arbol * ri;
+}typedef arbol;
+*/
+
+struct lista_simple{
+    double numero;
+    struct lista_simple * next;
+}typedef lista_simple;
+
 //----------PROTOTIPADO----------//
 FILE*open_file(const char*filename, const char*apertura);//----------------------COMPLETO
 //void get_data(FILE*file, int arry[],const char* metodo="1by1");//----------------INCOMPLETO
@@ -43,6 +57,13 @@ int data_counter(FILE* file);
 lista_l* init_list( FILE* file, int *counter_data);
 lista_l* clean_list(lista_l *head, int i);
 void recorrer(lista_l *head);
+
+int non_cero(double list[]);
+void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple * raiz, lista_simple * fondo);
+void mostrar_sl(lista_simple *h);
+lista_simple * init_sl(double dato);
+void insertar_sl(double dato, lista_simple* raiz, lista_simple* fondo);
+void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple *raiz_nueva, lista_simple * fondo_nueva);
 //--------FIN PROTOTIPADO--------//
 int main(int argc, char*argv[])
 {
@@ -59,29 +80,40 @@ int main(int argc, char*argv[])
     printf("Abriendo archivo\n");
     FILE* num = fopen("ArchivoA.tex","r");
     rewind(num);
-    double list[ARRAY_LEN];
     int peso = 1;
     int data = 0;
     //char *char_buff = (char*)malloc(sizeof(char_buff));
     double buffer;
     //fflush(stdout);
+    printf("Merge\n");
     printf("Contando elementos...\n");
     clock_t _count = clock();
-    long int file_numbers = data_counter(num);
+    //long int file_numbers = data_counter(num);
     double _time_count = ((double)clock()-_count)/CLOCKS_PER_SEC;
-    printf("...OK. \n %li datos contados en el archivo (%f sec)", file_numbers, _time_count);
+    printf("...OK. \n %li datos contados en el archivo (%f sec)", 1, _time_count);
     rewind(num);
     lista_l * pointer;
     clock_t start = clock();
     pointer = init_list(num,&data);
+
+    lista_simple *ordenada_raiz, *ordenada_fondo; 
     Insert_data(pointer, num,&peso,&data);
+    lista_l *aux = pointer;
+    lista_simple *matriz[peso][2];
+    for(int i = 0; i< peso; i++){
+        MERGE_LISTS((*aux).arrayA, (*aux).arrayB, ARRAY_LEN,ARRAY_LEN,matriz[i][0],matriz[i][1]);
+        aux = aux->next;
+    }
+    for(int e = 1; e<peso; e+=2){
+        MERGE_STRUCTURES(matriz[e][0],matriz[e-1][0],ordenada_raiz,ordenada_fondo);
+    }
+    mostrar_sl(ordenada_raiz);
+
+
+
+
+
     double _time_in = ((double)clock() - start)/CLOCKS_PER_SEC;
-    printf("\n|          Lista A          |          Lista B        |\n");
-    /*for(int i = 0;i<ARRAY_LEN;i++){
-        printf("|-------------------------------------------------------|\n");
-        printf("|       %.7e       |       %.7e       |\n",(*pointer).arrayA[i],(*pointer).arrayB[i]);
-        printf("|-------------------------------------------------------|\n");
-    } */
     printf("...OK \n Tiempo transcurrido: %f \n Total de datos contados: %i \n Total de datos ordenados: %i \n Peso de la estructura(en bytes): %zu \n",_time_in,data,data,sizeof(lista_l));
     printf(" Numero de nodos enlazados: %d \n Peso total(en bytes): %zu (%f mb)\n",peso, sizeof(lista_l) * peso, (sizeof(lista_l) * peso)* 1e-6);
     printf("Liberando memoria...");
@@ -93,6 +125,176 @@ int main(int argc, char*argv[])
     printf("%zu", sizeof((*pointer)));
     //recorrer(pointer);
     //fclose(num);
+}
+
+
+
+/*
+
+arbol * init_tree(double dato, arbol* padre){
+    arbol* nodo;
+    nodo = (arbol*)malloc(sizeof(arbol));
+    (*nodo).data = dato;
+    (*nodo).rd = NULL;
+    (*nodo).ri = NULL;
+    (*nodo).padre = padre;
+    return nodo;
+}
+
+
+void fix_nodes(arbol *root){
+    fix_nodes(root->ri);
+    if(root == NULL){
+
+    }
+    fix_nodes(root->rd);
+
+    
+
+}
+*/
+
+/*
+void heap(double data, arbol *padre, int *c){
+    if(padre == NULL){
+        arbol * temp = init_tree(data,padre);
+        padre = temp;
+        *c = *c=1? 0: 1; 
+    }else if(*c == 0){
+        heap(data,padre->ri,&c);
+    }else{
+        heap(data,padre->rd,&c);
+    }
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int non_cero(double list[]){
+    long int i = 0;
+    while(i< short_arry_len(list)){
+        if(list[i]!= 0){
+            i++;
+        }else{
+            return i;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple *raiz_nueva, lista_simple * fondo_nueva){
+    lista_simple *auxP, *auxQ, *intercambio;
+    auxP = p;
+    auxQ = q;
+    while(auxP || auxQ){
+        if(auxQ && auxP){
+            if((*auxP).numero >= (*auxQ).numero){
+                insertar_sl(auxQ->numero,raiz_nueva,fondo_nueva);
+                auxQ = (*auxQ).next;
+            }else{
+                insertar_sl(auxP->numero,raiz_nueva,fondo_nueva);
+                auxP = (*auxP).next;
+            }
+        }else if(!auxP){
+            insertar_sl((*auxQ).numero,raiz_nueva,fondo_nueva);
+            auxQ = (*auxQ).next;
+        }else{
+            insertar_sl((*auxP).numero,raiz_nueva,fondo_nueva);
+            auxP = (*auxP).next;
+        }
+    }
+}
+
+
+
+void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple * raiz, lista_simple * fondo){
+    int largo_L1 = len1;
+    int largo_L2 = len2;
+    int _MIN = largo_L1 <= largo_L2? largo_L1 : largo_L2;
+    int _MAX = largo_L1 > largo_L2? largo_L1 : largo_L2;
+    int i_1 = 0;
+    int j_2 = 0;
+    printf("Largo lista 1: %i; Largo lista 2: %i\n", largo_L1, largo_L2);
+    printf("Largo maximo: %i; Largo minimo: %i\n",_MAX,_MIN);
+    while(i_1 < _MIN || j_2 < _MIN){
+        if(list_1[i_1] < list_2[j_2]){
+            insertar_sl(list_1[i_1],raiz,fondo);
+            printf("i: %i => %f   |   j: %i => %f\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
+            i_1++;
+        }else{
+            insertar_sl(list_2[j_2],raiz,fondo);
+            printf("i: %i => %f   |   j: %i => %f\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
+            j_2++;
+        }
+    }
+    for(int R = i_1>j_2? j_2:i_1; R<_MAX; R++){
+        if(largo_L1 >  largo_L2){
+            insertar_sl(list_1[R],raiz,fondo);
+        }else{
+            insertar_sl(list_2[R],raiz,fondo);
+        }
+    }
+}
+
+
+lista_simple * init_sl(double dato){
+    lista_simple * head = (lista_simple*)malloc(sizeof(lista_simple));
+    (*head).next = NULL;
+    (*head).numero = dato;
+    return head;
+}
+
+void insertar_sl(double dato, lista_simple * raiz, lista_simple * fondo){
+    lista_simple* nuevo = malloc(sizeof(lista_simple));
+    nuevo->numero = dato;
+    nuevo->next = NULL;
+    if(raiz == NULL){
+        raiz = nuevo;
+        fondo = nuevo;
+    }else{
+        fondo->next = nuevo;
+        fondo = nuevo;
+    }
+}
+
+void mostrar_sl(lista_simple *h){
+    lista_simple *aux;
+    aux = h;
+    while(aux){
+        printf("%f\n",(*aux).numero);
+        aux=(*aux).next;
+    }
 }
 
 
@@ -116,8 +318,8 @@ lista_l* init_list( FILE* file, int *counter_data){
          *counter_data+=1;
     }
     //printf("Iniciando quicksort con: %li datos",short_arry_len((*head).arrayA)+short_arry_len((*head).arrayB));
-    quicksort_double((*head).arrayA,0,ARRAY_LEN-1);
-    quicksort_double((*head).arrayB,0,ARRAY_LEN-1);
+    quicksort_double((*head).arrayA,0,ARRAY_LEN);
+    quicksort_double((*head).arrayB,0,ARRAY_LEN);
     return head;
 }
 
@@ -128,7 +330,7 @@ void recorrer(lista_l *head){
         aux = head;
         int i = 1;
         while(aux){
-            printf("NODO (%i)\n size next %zu\n", i,sizeof((*(*aux).next)));
+            printf("NODO (%li)\n size next %zu; A_size: %i;  B_size: %li", i,sizeof((*(*aux).next)),non_cero((*aux).arrayA),non_cero((*aux).arrayB));
             i++;
             aux=(*aux).next;
         }
@@ -141,12 +343,8 @@ lista_l* clean_list(lista_l *head, int i){
         if(head){
             aux = head;
             printf("LIMPIANDO NODO (%i); PESO INICIAL: %zu; PESO DEL SIGUENTE NODO: %zu ",i,sizeof(*aux),sizeof((*(*aux).next)));
-            if(has_next(head)){
-                head = (*head).next;
-            }
-            fflush(stdout);
+            head = (*head).next;
             free(aux);
-            aux=NULL;
             printf("PESO FINAL: %zu\n",sizeof(*aux));
             i++;
         }

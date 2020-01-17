@@ -122,7 +122,6 @@ void print_f();
 #define short_arry_len(x) (sizeof(x)/sizeof(x[0]))
 
 
-
 //ESTRUCTURAS
 
 struct LinkedList{

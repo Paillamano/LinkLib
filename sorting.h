@@ -4,8 +4,8 @@
 int partition_double(double list[], int low, int high);
 void quicksort_double(double list[],int low, int high);
 
-void merge_double(double array[], int l, int m, int r);
-void MergeSort_double(double array[],int l,int r);
+void merge_double(double array[], int start, int m, int end);
+void mergesort_double(double array[],int start,int end);
 //FIN PROTOTIPADO
 
 void quicksort_double(double list[],int low, int high)//primera y ultima posicion
@@ -43,49 +43,31 @@ If r > l
      4. Merge the two halves sorted in step 2 and 3:
              Call merge(arr, l, m, r) */
 
-void MergeSort_double(double array[],int l,int r){
-	if(r>l){
-		int m = (l+r)%2==0?(l+r)/2: (l+r+1)/2;
-		MergeSort_double(array,l,m);
-		MergeSort_double(array,m+1,r);
-		merge_double(array, l,m,r);
+void mergesort_double(double array[],int start,int end){
+	if(start < end ){
+		int m = (start+end)%2==0?(start+end)/2: (start+1+end)/2;
+		mergesort_double(array,start,m);
+		mergesort_double(array,m+1,end);
+		merge_double(array, start,m,end);
 	} 
 }
 
-void merge_double(double array[], int l, int m, int r){
-	int i,j,k;
-	int n1 = m-l+1;
-	int n2 = r-m;
-	double L[n1],R[n2];
-	printf("Union de listas\n");
-	for(i =0; i<n1;i++){
-		L[i] = array[l+i];
-	}
-	for(j = 0; j<n2;j++){
-		R[j] = array[m+1+j];
-	}
-	i=0;
-	j=0;
-	k=l;
-	while(i<n1 && j<n2){
-		if(L[i]<=R[j]){
-			array[k] = L[i];
-			i++;
+void merge_double(double array[], int start, int m, int end){
+	int i = start, j = m+1, k=0;
+	double temp_array[end-start+1];
+	for(int c = start; c<=end; c++){
+		if(i > m){
+			temp_array[k++] = array[j++];
+		}else if(j > end){
+			temp_array[k++] = array[i++];
+		}else if(array[i] < array[j]){
+			temp_array[k++] = array[i++];
 		}else{
-			array[k] = R[j];
-			j++;
+			temp_array[k++] = array[j];
 		}
-		k++;
 	}
-	while(i<n1){
-		array[k] = L[i];
-		i++;
-		k++;
-	}
-	while(j<n1){
-		array[k] = R[j];
-		j++;
-		k++;
+	for(int t = 0; t<k;t++){
+		array[i++] = temp_array[t];
 	}
 }
 
