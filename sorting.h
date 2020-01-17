@@ -20,7 +20,7 @@ void quicksort_double(double list[],int low, int high)//primera y ultima posicio
 
 int partition_double(double list[], int low, int high)
 {
-	double pivot = list[high];
+	double pivot = list[(high+low)%2==0?(high+low)/2:(high+low+1)/2];
 	int i = (low - 1);
 	for(int j = low; j<= high-1;j++){
 		if(list[j] < pivot){

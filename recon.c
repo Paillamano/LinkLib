@@ -47,6 +47,13 @@ struct lista_simple{
     struct lista_simple * next;
 }typedef lista_simple;
 
+
+struct lista_lista{
+    lista_simple *raiz;
+    lista_simple *fondo;
+    struct lista_lista *next;
+}typedef lista_lista;
+
 //----------PROTOTIPADO----------//
 FILE*open_file(const char*filename, const char*apertura);//----------------------COMPLETO
 //void get_data(FILE*file, int arry[],const char* metodo="1by1");//----------------INCOMPLETO
@@ -59,11 +66,15 @@ lista_l* clean_list(lista_l *head, int i);
 void recorrer(lista_l *head);
 
 int non_cero(double list[]);
-void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple * raiz, lista_simple * fondo);
+void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple ** raiz, lista_simple ** fondo);
 void mostrar_sl(lista_simple *h);
 lista_simple * init_sl(double dato);
 void insertar_sl(double dato, lista_simple* raiz, lista_simple* fondo);
-void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple *raiz_nueva, lista_simple * fondo_nueva);
+void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple **raiz_nueva, lista_simple ** fondo_nueva);
+
+lista_lista * init_ll(lista_simple * raiz, lista_simple * fondo);
+void insert_ll(lista_lista * head,lista_simple * raiz, lista_simple * fondo);
+
 //--------FIN PROTOTIPADO--------//
 int main(int argc, char*argv[])
 {
@@ -96,18 +107,26 @@ int main(int argc, char*argv[])
     clock_t start = clock();
     pointer = init_list(num,&data);
 
-    lista_simple *ordenada_raiz, *ordenada_fondo; 
+    printf("Insertando\n"); 
     Insert_data(pointer, num,&peso,&data);
     lista_l *aux = pointer;
-    lista_simple *matriz[peso][2];
-    for(int i = 0; i< peso; i++){
-        MERGE_LISTS((*aux).arrayA, (*aux).arrayB, ARRAY_LEN,ARRAY_LEN,matriz[i][0],matriz[i][1]);
+    lista_lista * head;
+    lista_simple * raiz;
+    lista_simple * fondo;
+    raiz = NULL;
+    fondo = NULL;
+    while(aux){
+        printf("%p\n", raiz);
+        MERGE_LISTS(aux->arrayA,aux->arrayB,ARRAY_LEN,ARRAY_LEN,&raiz,&fondo);
+        insert_ll(head,raiz,fondo);
+        raiz = NULL;
+        fondo = NULL;
         aux = aux->next;
     }
-    for(int e = 1; e<peso; e+=2){
-        MERGE_STRUCTURES(matriz[e][0],matriz[e-1][0],ordenada_raiz,ordenada_fondo);
-    }
-    mostrar_sl(ordenada_raiz);
+
+
+    printf("Mezclando listas\n");
+    
 
 
 
@@ -174,9 +193,19 @@ void heap(double data, arbol *padre, int *c){
 
 
 
+lista_lista * init_ll(lista_simple * raiz, lista_simple * fondo){
+    lista_lista * temp = (lista_lista*)malloc(sizeof(lista_lista));
+    temp->raiz = raiz;
+    temp->fondo = fondo;
+    temp->next = NULL;
+    return temp;
+}
 
-
-
+void insert_ll(lista_lista * head,lista_simple * raiz, lista_simple * fondo){
+    lista_lista *aux = init_ll(raiz,fondo);
+    aux->next = head;
+    head = aux;
+}
 
 
 
@@ -213,24 +242,24 @@ int non_cero(double list[]){
 
 
 
-void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple *raiz_nueva, lista_simple * fondo_nueva){
+void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple **raiz_nueva, lista_simple ** fondo_nueva){
     lista_simple *auxP, *auxQ, *intercambio;
     auxP = p;
     auxQ = q;
     while(auxP || auxQ){
         if(auxQ && auxP){
             if((*auxP).numero >= (*auxQ).numero){
-                insertar_sl(auxQ->numero,raiz_nueva,fondo_nueva);
+                insertar_sl(auxQ->numero,*raiz_nueva,*fondo_nueva);
                 auxQ = (*auxQ).next;
             }else{
-                insertar_sl(auxP->numero,raiz_nueva,fondo_nueva);
+                insertar_sl(auxP->numero,*raiz_nueva,*fondo_nueva);
                 auxP = (*auxP).next;
             }
         }else if(!auxP){
-            insertar_sl((*auxQ).numero,raiz_nueva,fondo_nueva);
+            insertar_sl((*auxQ).numero,*raiz_nueva,*fondo_nueva);
             auxQ = (*auxQ).next;
         }else{
-            insertar_sl((*auxP).numero,raiz_nueva,fondo_nueva);
+            insertar_sl((*auxP).numero,*raiz_nueva,*fondo_nueva);
             auxP = (*auxP).next;
         }
     }
@@ -238,7 +267,7 @@ void MERGE_STRUCTURES(lista_simple *p, lista_simple *q, lista_simple *raiz_nueva
 
 
 
-void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple * raiz, lista_simple * fondo){
+void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_simple ** raiz, lista_simple ** fondo){
     int largo_L1 = len1;
     int largo_L2 = len2;
     int _MIN = largo_L1 <= largo_L2? largo_L1 : largo_L2;
@@ -247,22 +276,24 @@ void MERGE_LISTS (double list_1[], double list_2[], int len1, int len2, lista_si
     int j_2 = 0;
     printf("Largo lista 1: %i; Largo lista 2: %i\n", largo_L1, largo_L2);
     printf("Largo maximo: %i; Largo minimo: %i\n",_MAX,_MIN);
+    printf("While i < min or j < min\n");
     while(i_1 < _MIN || j_2 < _MIN){
         if(list_1[i_1] < list_2[j_2]){
-            insertar_sl(list_1[i_1],raiz,fondo);
-            printf("i: %i => %f   |   j: %i => %f\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
+            insertar_sl(list_1[i_1],*raiz,*fondo);
+            //printf("i: %i => %.7e   |   j: %i => %.7e\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
             i_1++;
         }else{
-            insertar_sl(list_2[j_2],raiz,fondo);
-            printf("i: %i => %f   |   j: %i => %f\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
+            insertar_sl(list_2[j_2],*raiz,*fondo);
+            //printf("i: %i => %.7e   |   j: %i => %.7e\n", i_1,list_1[i_1] ,j_2, list_2[j_2]);
             j_2++;
         }
     }
+    printf("for\n");
     for(int R = i_1>j_2? j_2:i_1; R<_MAX; R++){
         if(largo_L1 >  largo_L2){
-            insertar_sl(list_1[R],raiz,fondo);
+            insertar_sl(list_1[R],*raiz,*fondo);
         }else{
-            insertar_sl(list_2[R],raiz,fondo);
+            insertar_sl(list_2[R],*raiz,*fondo);
         }
     }
 }
