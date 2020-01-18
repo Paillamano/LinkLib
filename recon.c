@@ -123,7 +123,24 @@ int main(int argc, char*argv[])
         fondo = NULL;
         aux = aux->next;
     }
-
+    lista_lista * aux_orden, *temp1,*temp2;
+    lista_simple * raiz_o, *fondo_o;
+    while(aux_orden){
+        if(aux_orden->next != NULL){
+            MERGE_STRUCTURES(aux_orden->raiz,aux_orden->next->raiz,&raiz_o,&fondo_o);
+            temp1 = aux_orden;
+            temp2 = temp1->next;
+            aux_orden = (aux_orden->next)->next;
+            free(temp1);
+            free(temp2);
+        }
+        else{
+            lista_simple *raiz_temp, *fondo_temp;
+            raiz_temp = raiz;
+            fondo_temp = fondo;
+            MERGE_STRUCTURES(raiz_temp, aux_orden->raiz, &raiz_temp,&fondo_temp);
+        }
+    }
 
     printf("Mezclando listas\n");
     
